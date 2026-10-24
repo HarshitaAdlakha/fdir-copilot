@@ -1,0 +1,5 @@
+fdir_local.db
+__pycache__/
+*.pyc
+.env
+.claude/

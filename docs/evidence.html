@@ -1,0 +1,49 @@
+<!doctype html><html><head><meta charset="utf-8"><title>FDIR Copilot Evidence</title>
+<style>
+body{margin:0;background:#0b0f17;color:#e6ebf5;font-family:Segoe UI,system-ui,sans-serif}
+.s{width:1600px;height:760px;padding:44px 56px;box-sizing:border-box}
+h1{margin:0;font-size:38px}h1 b{color:#4cc2ff}.sub{color:#aab4c8;font-size:19px;margin:6px 0 22px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.card{background:#121826;border:1px solid #232c3f;border-radius:14px;padding:20px}
+h3{margin:0 0 14px;font-size:16px;letter-spacing:.1em;text-transform:uppercase;color:#4cc2ff}
+.bar{display:grid;grid-template-columns:300px 1fr 70px;align-items:center;gap:10px;margin:12px 0;font-size:18px}
+.track{background:#0e1420;border-radius:6px;height:30px}.fill{height:30px;border-radius:6px}
+.v{font-weight:700;font-size:20px;text-align:right}
+table{width:100%;border-collapse:collapse;font-size:17px}td,th{padding:7px 8px;border-bottom:1px solid #232c3f;text-align:left}th{color:#8a96ad;font-weight:500}
+.g{color:#3ddc97}.r{color:#ff6b6b}.k{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.kp{background:#121826;border:1px solid #232c3f;border-radius:14px;padding:16px}.kp .n{font-size:40px;font-weight:800}.kp small{color:#8a96ad;font-size:15px}
+.note{color:#8a96ad;font-size:14px;margin-top:16px}
+</style></head><body><div class="s">
+<h1><b>FDIR Copilot</b>: evidence it works</h1>
+<div class="sub">300 fault-injected telemetry passes (6 fault classes × 50; random onset, severity, orbit phase). Passes arrive online, and incident memory starts <b>empty</b>.</div>
+<div class="row">
+<div class="card"><h3>Root-cause accuracy: baseline vs agent</h3>
+<div class="bar"><span>Limit-check console (naive, no data context)</span><div class="track"><div class="fill" style="width:32.3%;background:#ff6b6b"></div></div><span class="v r">32.3%</span></div>
+<div class="bar"><span>Agent: causal model only</span><div class="track"><div class="fill" style="width:75.3%;background:#4cc2ff"></div></div><span class="v">75.3%</span></div>
+<div class="bar"><span>Agent: incident memory only</span><div class="track"><div class="fill" style="width:86.7%;background:#4cc2ff"></div></div><span class="v">86.7%</span></div>
+<div class="bar"><span><b>Agent: causal + memory (full)</b></span><div class="track"><div class="fill" style="width:93%;background:#3ddc97"></div></div><span class="v g">93.0%</span></div>
+<h3 style="margin-top:26px">Learning over time (accuracy per block of 50 passes)</h3>
+<svg width="680" height="230" viewBox="0 0 680 230">
+<g stroke="#1f2839">
+<line x1="50" y1="20" x2="660" y2="20"/><line x1="50" y1="100" x2="660" y2="100"/><line x1="50" y1="180" x2="660" y2="180"/></g>
+<g fill="#8a96ad" font-size="13"><text x="10" y="24">100%</text><text x="16" y="104">50%</text><text x="24" y="184">0%</text>
+<text x="70" y="205">1–50</text><text x="185" y="205">51–100</text><text x="300" y="205">101–150</text><text x="415" y="205">151–200</text><text x="530" y="205">201–250</text><text x="615" y="205">251–300</text></g>
+<polyline fill="none" stroke="#3ddc97" stroke-width="3" points="85,58.4 200,42.4 315,23.2 430,23.2 545,20 645,20"/>
+<polyline fill="none" stroke="#4cc2ff" stroke-width="3" points="85,64.8 200,71.2 315,48.8 430,55.2 545,48.8 645,68"/>
+<polyline fill="none" stroke="#ff6b6b" stroke-width="3" points="85,125.6 200,135.2 315,132 430,138.4 545,125.6 645,112.8"/>
+<g font-size="14"><text x="420" y="85" fill="#4cc2ff">causal only</text><text x="420" y="160" fill="#ff6b6b">limit-check console</text><text x="440" y="40" fill="#3ddc97">agent: 76% → 100%</text></g>
+</svg></div>
+<div class="card"><h3>Per fault class</h3>
+<table><tr><th>Injected fault</th><th>Console</th><th>Agent</th></tr>
+<tr><td>Solar array degradation</td><td class="r">0%</td><td class="g">100%</td></tr>
+<tr><td>Battery cell short</td><td class="r">0%</td><td class="g">90%</td></tr>
+<tr><td>Heater stuck on</td><td class="r">30%</td><td class="g">94%</td></tr>
+<tr><td>Reaction-wheel bearing friction</td><td class="r">0%</td><td class="g">92%</td></tr>
+<tr><td>Star-tracker blinding</td><td>100%</td><td>92%</td></tr>
+<tr><td>Transponder over-temperature</td><td class="r">64%</td><td class="g">90%</td></tr></table>
+<div class="k">
+<div class="kp"><div class="n r">49.7%</div><small>of faults never trip a limit; the console is silent</small></div>
+<div class="kp"><div class="n">70 s</div><small>median detection delay<br>vs 450 s console</small></div>
+<div class="kp"><div class="n">4 ms</div><small>median compute per diagnosis</small></div></div>
+<div class="note">Why the console fails: limits fire on downstream symptoms (for example battery temperature) or not at all. The agent backtracks the spacecraft's causal graph and recalls similar closed incidents from Aiven PostgreSQL.<br><br>Reproduce: <code>python -m fdir.benchmark 50</code> · github.com/ParasAdlakha/fdir-copilot</div>
+</div></div></div></body></html>

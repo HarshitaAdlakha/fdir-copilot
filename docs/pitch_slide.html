@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8"><title>FDIR Copilot Pitch</title>
+<style>
+body{margin:0;background:#0b0f17;font-family:Segoe UI,system-ui,sans-serif;color:#e6ebf5}
+.s{width:1600px;height:900px;padding:56px 64px;box-sizing:border-box;display:grid;grid-template-columns:1.1fr 1fr;gap:40px}
+h1{font-size:56px;margin:0}h1 b{color:#4cc2ff}.sub{font-size:24px;color:#aab4c8;margin:8px 0 28px}
+h3{font-size:18px;letter-spacing:.1em;text-transform:uppercase;color:#4cc2ff;margin:22px 0 6px}
+p,li{font-size:20px;line-height:1.4;margin:4px 0}ul{padding-left:22px;margin:0}
+.k{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.kp{background:#121826;border:1px solid #232c3f;border-radius:14px;padding:16px}.kp .n{font-size:52px;font-weight:800}.kp small{font-size:16px;color:#8a96ad}
+.g{color:#3ddc97}.r{color:#ff6b6b}
+.flow{background:#121826;border:1px solid #232c3f;border-radius:14px;padding:16px;font-size:18px;line-height:1.7}
+.flow b{color:#ffc857}
+</style></head><body><div class="s">
+<div>
+<h1><b>FDIR</b> Copilot</h1>
+<div class="sub">An AI flight controller that finds the <i>root cause</i> of satellite anomalies and learns from every incident.</div>
+<h3>Who it's for</h3>
+<p>Small-sat operators: NewSpace startups and university CubeSat teams with 2 to 5 operators running many spacecraft and no 24/7 flight-controller bench.</p>
+<h3>The problem</h3>
+<p>Ops consoles alarm on limit violations. Limits fire on <b>symptoms</b> (battery temperature), not <b>causes</b> (a degrading solar array), and many faults never cross a limit at all. The result is hours of manual telemetry forensics per anomaly.</p>
+<h3>Why now</h3>
+<p>Thousands of small-sat launches a year, ops teams that aren't growing, and agents that can now reason over telemetry plus a causal model of the vehicle.</p>
+<h3>Route to first users</h3>
+<ul><li>Free tier for university CubeSat teams (open-source telemetry importers: YAMCS, OpenMCT, CCSDS)</li>
+<li>Pilot with 3 seed-stage NewSpace operators, paid per spacecraft per month</li>
+<li>Channels: SmallSat Conference, LibreCube/CubeSat communities, launch-broker partners</li></ul>
+</div>
+<div>
+<h3>Evidence it works · 300 fault-injected passes</h3>
+<div class="k">
+<div class="kp"><div class="n g">93%</div><small>root-cause accuracy<br>vs <span class="r">32%</span> limit-check</small></div>
+<div class="kp"><div class="n r">50%</div><small>of faults never alarm on a classic console; the agent catches them</small></div>
+<div class="kp"><div class="n">70s</div><small>median detection<br>vs 450 s console</small></div>
+</div>
+<p>Learning from memory: <b class="g">76% → 100%</b> accuracy as closed incidents accumulate (causal-only: 75%).</p>
+<h3>How the agent works</h3>
+<div class="flow">Telemetry downlink → <b>Aiven PostgreSQL</b><br>
+① Detect: orbit-aware residuals (eclipse ephemeris)<br>
+② Isolate: backtrack a system-dynamics causal graph<br>
+③ Recall: kNN over incident memory (<b>Aiven PostgreSQL</b>)<br>
+④ Fuse evidence → ⑤ recommend a recovery procedure + LLM briefing<br>
+Operator closes the incident → written back to memory → the next pass is smarter.<br>
+Deployed on <b>Aiven Runtime</b>.</div>
+<h3>Point of difference</h3>
+<p>Built on aerospace systems engineering (FDIR, FMEA, system dynamics), not a generic chatbot over logs. It explains <i>why</i>, with a traceable causal chain.</p>
+</div></div></body></html>

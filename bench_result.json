@@ -1,0 +1,80 @@
+{
+  "n_passes": 300,
+  "root_cause_accuracy_pct": {
+    "naive_limit_check": 32.3,
+    "agent_causal_only": 75.3,
+    "agent_memory_only": 86.7,
+    "agent_full": 93.0
+  },
+  "alarm_missed_pct_naive": 49.7,
+  "median_detection_delay_s": {
+    "naive_limit_check": 450,
+    "agent": 70
+  },
+  "agent_latency_ms_median": 4.1,
+  "learning_curve": [
+    {
+      "passes": "1-50",
+      "agent": 76.0,
+      "naive": 34.0,
+      "causal_only": 72.0
+    },
+    {
+      "passes": "51-100",
+      "agent": 86.0,
+      "naive": 28.0,
+      "causal_only": 68.0
+    },
+    {
+      "passes": "101-150",
+      "agent": 98.0,
+      "naive": 30.0,
+      "causal_only": 82.0
+    },
+    {
+      "passes": "151-200",
+      "agent": 98.0,
+      "naive": 26.0,
+      "causal_only": 78.0
+    },
+    {
+      "passes": "201-250",
+      "agent": 100.0,
+      "naive": 34.0,
+      "causal_only": 82.0
+    },
+    {
+      "passes": "251-300",
+      "agent": 100.0,
+      "naive": 42.0,
+      "causal_only": 70.0
+    }
+  ],
+  "per_fault": {
+    "SA_DEGRADATION": {
+      "naive": 0.0,
+      "agent": 100.0
+    },
+    "BATTERY_CELL_SHORT": {
+      "naive": 0.0,
+      "agent": 90.0
+    },
+    "HEATER_STUCK_ON": {
+      "naive": 30.0,
+      "agent": 94.0
+    },
+    "RW_BEARING_FRICTION": {
+      "naive": 0.0,
+      "agent": 92.0
+    },
+    "STAR_TRACKER_BLIND": {
+      "naive": 100.0,
+      "agent": 92.0
+    },
+    "TRANSPONDER_THERMAL": {
+      "naive": 64.0,
+      "agent": 90.0
+    }
+  },
+  "wall_s": 10.5
+}
