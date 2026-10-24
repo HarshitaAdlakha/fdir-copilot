@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FDIR Copilot Replay</title>
+<meta name="description" content="Replay of a recorded FDIR Copilot agent run: from telemetry downlink to root cause and recovery.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f7f6f3;--panel:#fff;--line:#e8e5de;--text:#1d1b16;--mute:#6f6a5f;--acc:#5b5bf7;--acc-soft:#ecebff;--ok:#12a46b;--ok-soft:#e3f6ee;--bad:#e5484d;--bad-soft:#fdecec;--warn:#e59a1a;--warn-soft:#fff3dc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body:before{content:"";position:fixed;inset:-20% -10% auto -10%;height:520px;z-index:-1;background:radial-gradient(40% 60% at 20% 30%,#e9e6ff 0,transparent 70%),radial-gradient(35% 55% at 80% 20%,#dff3ff 0,transparent 70%),radial-gradient(30% 50% at 55% 60%,#fff0e0 0,transparent 70%)}
+.wrap{max-width:1440px;margin:auto;padding:20px 28px 40px}
+.mono{font-family:JetBrains Mono,monospace}
+header{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:6px 0 18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-.01em}
+.logo i{width:30px;height:30px;border-radius:9px;background:conic-gradient(from 200deg,#5b5bf7,#2d9cdb,#12a46b,#e59a1a,#5b5bf7)}
+.meta{display:flex;gap:26px;flex-wrap:wrap}.meta div small{display:block;font:500 11px JetBrains Mono,monospace;color:var(--mute);letter-spacing:.08em}
+.meta div b{font-weight:600;font-size:15px}
+.status{margin-left:auto;display:flex;gap:8px}
+.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font:500 12.5px JetBrains Mono,monospace;color:var(--mute)}
+.pill.ok{color:var(--ok);border-color:#bfe8d5;background:var(--ok-soft)}.pill.run{color:var(--acc);border-color:#d6d5ff;background:var(--acc-soft)}
+.banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px dashed #d9d4c8;border-radius:16px;padding:14px 18px;background:#ffffffaa}
+.banner span{font:500 12px JetBrains Mono,monospace;letter-spacing:.1em;color:var(--mute)}
+.banner .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
+a{color:var(--acc)}.banner a{font-weight:600;color:var(--text)}
+button{background:#fff;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer;font:500 14px Inter,sans-serif}
+button.primary{background:var(--text);color:#fff;border-color:var(--text)}
+.timeline{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:16px 0}
+@media(max-width:1000px){.timeline{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:560px){.timeline{grid-template-columns:repeat(2,1fr)}.wrap{padding:16px}}
+.st{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer;position:relative;transition:.2s;opacity:.55}
+.st small{font:500 11px JetBrains Mono,monospace;color:var(--mute)}.st b{display:block;font-weight:600}
+.st:after{content:"";position:absolute;right:12px;top:12px;width:7px;height:7px;border-radius:50%;background:#d8d3c7}
+.st.done{opacity:1}.st.done:after{background:var(--ok)}
+.st.now{opacity:1;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-soft)}.st.now:after{background:var(--acc)}
+.grid2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}@media(max-width:1000px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:0 1px 2px #0000000a,0 8px 24px -12px #1d1b1614;overflow:hidden}
+.card+.card{margin-top:16px}
+.ch-h{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font:600 12px JetBrains Mono,monospace;letter-spacing:.1em}
+.ch-h span{color:var(--mute);font-weight:500;letter-spacing:0}
+.body{padding:14px 16px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.ch{background:#fbfaf8;border:1px solid var(--line);border-radius:12px;padding:6px 8px;transition:.3s}.ch.an{background:var(--warn-soft);border-color:#f3cf8c}
+.ch .n{font:11px JetBrains Mono,monospace;color:var(--mute);display:flex;justify-content:space-between}.ch .n b{color:var(--text);font-weight:500}
+.hide{display:none!important}
+.lbl{font:500 11px JetBrains Mono,monospace;letter-spacing:.08em;color:var(--mute);margin-bottom:6px}
+.box{background:#fbfaf8;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.box.bad{background:var(--bad-soft);border-color:#f4b4b6}.box.good{background:var(--ok-soft);border-color:#a9e2c8}
+.box .d{font:600 15px JetBrains Mono,monospace;margin:2px 0}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chain code{background:var(--warn-soft);border:1px solid #f3cf8c;border-radius:8px;padding:3px 8px;font:12.5px JetBrains Mono,monospace}
+.chain code.root{background:var(--acc-soft);border-color:#c9c7ff;color:var(--acc);font-weight:600}
+.bars div{display:grid;grid-template-columns:190px 1fr 50px;gap:8px;align-items:center;font:12.5px JetBrains Mono,monospace;margin:5px 0}
+.bars i{display:block;height:10px;border-radius:5px;background:var(--acc);transition:width .8s}.bars .t{background:#efece6;border-radius:5px}
+.ref{border-left:3px solid var(--acc);padding:6px 12px;margin:8px 0;background:#fbfaf8;border-radius:0 10px 10px 0;font-size:13.5px}
+.ref b{font:600 12px JetBrains Mono,monospace;color:var(--acc)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border-radius:14px;padding:12px;border:1px solid var(--line);background:#fff}.kpi small{color:var(--mute);font-size:12px;display:block}.kpi b{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.fade{animation:f .5s ease}@keyframes f{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+footer{margin-top:22px;color:var(--mute);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+</style></head><body><div class="wrap">
+<header>
+ <div class="logo"><i></i>FDIR Copilot</div>
+ <div class="meta"><div><small>PASS</small><b class="mono">SAT1-P0417</b></div><div><small>SPACECRAFT</small><b>DEMO-SAT-1</b></div>
+ <div><small>CHANNELS</small><b>13 · EPS / THERMAL / ADCS / COMMS</b></div><div><small>ROOT CAUSE</small><b id="hRoot">Pending</b></div></div>
+ <div class="status"><span class="pill" id="pRun">● Idle</span><span class="pill" id="pClose">○ Open</span></div>
+</header>
+<div class="banner"><span>REPLAY OF A RECORDED AGENT RUN · OCT 22, 2026 · ACCEL AI INNOVATE PARIS × AIVEN</span>
+ <div class="sp"><a href="https://github.com/ParasAdlakha/fdir-copilot">GitHub</a><button class="primary" id="bPlay">Replay run</button></div></div>
+<div class="timeline" id="tl"></div>
+<div class="grid2">
+ <div>
+  <div class="card"><div class="ch-h">TELEMETRY PASS <span id="telInfo">waiting for downlink</span></div>
+   <div class="body"><div class="tgrid" id="charts"></div>
+   <p style="color:var(--mute);font-size:12.5px;margin:10px 0 0">Grey bands = eclipse · dashed red = hard limits used by a classic console · amber = flagged by the agent</p></div></div>
+ </div>
+ <div>
+  <div class="card"><div class="ch-h">VERDICT <span id="lat"></span></div><div class="body">
+   <div class="two"><div class="box" id="vNaive"><div class="lbl">CLASSIC LIMIT-CHECK CONSOLE</div><div class="d">—</div><small>waiting</small></div>
+   <div class="box" id="vAgent"><div class="lbl">FDIR AGENT</div><div class="d">—</div><small>waiting</small></div></div></div></div>
+  <div class="card hide" id="cDetect"><div class="ch-h">DETECT · SYMPTOM CHAIN <span>orbit-aware residuals</span></div><div class="body"><div class="chain" id="chain"></div></div></div>
+  <div class="card hide" id="cIso"><div class="ch-h">ISOLATE · CAUSAL GRAPH <span>score per fault class</span></div><div class="body bars" id="iso"></div></div>
+  <div class="card hide" id="cRec"><div class="ch-h">RECALL · INCIDENT MEMORY <span id="memN"></span></div><div class="body" id="rec"></div></div>
+  <div class="card hide" id="cFuse"><div class="ch-h">FUSE · EVIDENCE <span>causal + memory</span></div><div class="body bars" id="fuse"></div></div>
+  <div class="card hide" id="cProc"><div class="ch-h">RECOVERY PROCEDURE <span>procedures.lookup</span></div><div class="body" id="proc"></div></div>
+ </div>
+</div>
+<div class="card" style="margin-top:16px"><div class="ch-h">BENCHMARK · 300 FAULT-INJECTED PASSES <span>memory starts empty, grows online</span></div><div class="body">
+ <div class="kpis"><div class="kpi"><small>Root-cause accuracy</small><b style="color:var(--ok)">93.0%</b><small>vs 32.3% limit-check</small></div>
+ <div class="kpi"><small>Faults the console never alarms</small><b style="color:var(--bad)">49.7%</b><small>agent flags them</small></div>
+ <div class="kpi"><small>Median detection delay</small><b style="color:var(--acc)">70 s</b><small>vs 450 s console</small></div>
+ <div class="kpi"><small>Learning from memory</small><b>76→100%</b><small>accuracy per 50 passes</small></div></div></div></div>
+<footer><span>Built by Paras Adlakha &amp; Harshita Adlakha · Accel AI Innovate Paris, Future Founders hackathon (22 Oct 2026)</span><span>Data layer: Aiven for PostgreSQL · App: Aiven Runtime · <a href="https://github.com/ParasAdlakha/fdir-copilot">Source</a></span></footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);const C={mute:'#8a857a',grid:'#efece6',acc:'#5b5bf7',warn:'#e59a1a',bad:'#e5484d'};
+const NICE={SA_DEGRADATION:'Solar array degradation',BATTERY_CELL_SHORT:'Battery cell short',HEATER_STUCK_ON:'Heater stuck on',RW_BEARING_FRICTION:'Reaction-wheel friction',STAR_TRACKER_BLIND:'Star-tracker blinding',TRANSPONDER_THERMAL:'Transponder over-temp'};
+const STEPS=[['Downlink','01:59:00'],['Detect','01:59:02'],['Isolate','01:59:03'],['Recall','01:59:04'],['Fuse','01:59:05'],['Recommend','01:59:06'],['Close incident','02:01:40']];
+let R,charts={},cur=-1,timer;
+$('tl').innerHTML=STEPS.map((s,i)=>`<div class="st" id="s${i}"><small>0${i+1}</small><b>${s[0]}</b><small>${s[1]} UTC</small></div>`).join('');
+STEPS.forEach((_,i)=>$('s'+i).onclick=()=>{clearTimeout(timer);go(i,false)});
+function mk(c,flag){const d=R.telemetry[c],m=R.channels[c];const lo=Math.min(...d),hi=Math.max(...d),pad=(hi-lo)*.12+1e-3;
+ return new Chart($('cv_'+c),{type:'line',data:{labels:d.map((_,i)=>i),datasets:[{data:d,borderColor:flag?C.warn:C.acc,borderWidth:1.3,pointRadius:0},
+ {data:d.map(()=>m.hi),borderColor:C.bad+'99',borderDash:[3,3],borderWidth:1,pointRadius:0},{data:d.map(()=>m.lo),borderColor:C.bad+'99',borderDash:[3,3],borderWidth:1,pointRadius:0},
+ {data:R.eclipse.map(e=>e?hi+pad:null),backgroundColor:'#1d1b160d',borderWidth:0,pointRadius:0,fill:'start'}]},
+ options:{animation:{duration:900},plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{display:false},y:{min:lo-pad,max:hi+pad,ticks:{color:C.mute,font:{size:9},maxTicksLimit:3},grid:{color:C.grid},border:{display:false}}}}})}
+function telemetry(flagged){Object.values(charts).forEach(c=>c.destroy());charts={};
+ $('charts').innerHTML=Object.keys(R.telemetry).map(c=>`<div class="ch ${flagged&&R.agent.trace[0].detail[c]?'an':''}"><div class="n"><b>${c}</b><span>${R.channels[c].subsystem} · ${R.channels[c].unit}</span></div><canvas id="cv_${c}" height="80"></canvas></div>`).join('');
+ for(const c in R.telemetry)charts[c]=mk(c,flagged&&R.agent.trace[0].detail[c]);
+ $('telInfo').textContent=`${Object.keys(R.telemetry).length} channels · 2 h · stored in Aiven PostgreSQL`}
+function bars(el,obj,max){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]);const mx=max||Math.max(...e.map(x=>Math.abs(x[1])))||1;
+ el.innerHTML=e.map(([k,v],i)=>`<div><span>${NICE[k]||k}</span><span class="t"><i style="width:0;background:${i?'#b9b6f9':'var(--acc)'}" data-w="${Math.max(0,v)/mx*100}"></i></span><span>${(+v).toFixed(2)}</span></div>`).join('');
+ requestAnimationFrame(()=>el.querySelectorAll('i').forEach(i=>i.style.width=i.dataset.w+'%'))}
+function show(id){const e=$(id);if(e.classList.contains('hide')){e.classList.remove('hide');e.classList.add('fade')}}
+function reset(){['cDetect','cIso','cRec','cFuse','cProc'].forEach(i=>$(i).classList.add('hide'));
+ $('vNaive').className='box';$('vAgent').className='box';$('vNaive').innerHTML='<div class="lbl">CLASSIC LIMIT-CHECK CONSOLE</div><div class="d">—</div><small>waiting</small>';
+ $('vAgent').innerHTML='<div class="lbl">FDIR AGENT</div><div class="d">—</div><small>waiting</small>';$('hRoot').textContent='Pending';$('lat').textContent='';
+ $('pRun').className='pill';$('pRun').textContent='● Idle';$('pClose').className='pill';$('pClose').textContent='○ Open';$('charts').innerHTML='';$('telInfo').textContent='waiting for downlink'}
+function go(n,auto=true){if(n===0||n<cur)reset();for(let i=Math.max(0,n<cur?0:cur+1);i<=n;i++)apply(i);cur=n;
+ STEPS.forEach((_,i)=>$('s'+i).className='st'+(i<n?' done':i===n?' now':''));
+ if(n===STEPS.length-1)$('s'+n).className='st done';
+ if(auto&&n<STEPS.length-1)timer=setTimeout(()=>go(n+1),n===0?2600:2200)}
+function apply(i){const A=R.agent,T=A.trace;$('pRun').className='pill run';$('pRun').textContent='● Running';
+ if(i===0){telemetry(false);const n=R.naive;$('vNaive').className='box '+(n.diagnosis===R.truth.fault?'good':'bad');
+  $('vNaive').innerHTML=`<div class="lbl">CLASSIC LIMIT-CHECK CONSOLE</div><div class="d">${n.diagnosis||'NO ALARM'}</div><small>${n.first_alarm?'first alarm: '+n.first_alarm[0]:'every channel stayed inside its limits'}</small>`}
+ if(i===1){telemetry(true);show('cDetect');const d=T[0].detail;const order=Object.keys(d).sort((a,b)=>d[a].onset-d[b].onset);
+  $('chain').innerHTML=order.map((c,k)=>`<code class="${k?'':'root'}">${c} ${d[c].sign>0?'↑':'↓'} +${(d[c].onset*10-R.truth.onset_s)}s</code>`).join('<span>→</span>')+`<p style="margin:10px 0 0;font-size:13px;color:var(--mute)">${order.length} channels off-nominal; onset times relative to the injected fault. Eclipse-aware baselines keep the night-side solar current from being flagged.</p>`}
+ if(i===2){show('cIso');bars($('iso'),T[1].detail)}
+ if(i===3){show('cRec');$('memN').textContent=`${R.memory_size} closed incidents searched`;const m=T[2].result.match(/\('([A-Z_]+)', ([0-9.]+)\)/g)||[];
+  $('rec').innerHTML=m.map(s=>{const [,f,v]=s.match(/'([A-Z_]+)', ([0-9.]+)/);return `<div class="ref"><b>${f}</b> · cosine similarity ${(+v).toFixed(3)}<br>${NICE[f]}: closed incident with a matching symptom signature</div>`}).join('')}
+ if(i===4){show('cFuse');bars($('fuse'),T[3].detail);$('lat').textContent=`${A.latency_ms} ms`;
+  $('vAgent').className='box good';$('vAgent').innerHTML=`<div class="lbl">FDIR AGENT</div><div class="d">${A.diagnosis}</div><small>confidence ${(A.confidence*100).toFixed(0)}%</small>`;$('hRoot').textContent=NICE[A.diagnosis]}
+ if(i===5){show('cProc');$('proc').innerHTML=`<div class="ref"><b>RECOVERY</b><br>${R.procedure}</div><div class="lbl" style="margin-top:12px">OPERATOR BRIEFING</div><div class="box">${A.briefing}</div>`}
+ if(i===6){$('pRun').className='pill ok';$('pRun').textContent='● Diagnosed';$('pClose').className='pill ok';$('pClose').textContent='● Closed → memory';
+  $('memN').textContent=`${R.memory_size} → ${R.memory_size+1} incidents (learned)`}}
+fetch('replay.json').then(r=>r.json()).then(j=>{R=j;$('bPlay').onclick=()=>{clearTimeout(timer);cur=-1;go(0)};go(0)});
+</script></body></html>

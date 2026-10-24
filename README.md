@@ -24,12 +24,15 @@ FDIR = **F**ault **D**etection, **I**solation & **R**ecovery
 
 | What | Link |
 |---|---|
+| ▶️ Public replay of an agent run (GitHub Pages) | https://parasadlakha.github.io/fdir-copilot/ |
+| 🎬 3-minute demo video | [demo.mp4](demo.mp4) |
 | 💻 Source code | https://github.com/ParasAdlakha/fdir-copilot |
-| 🚀 Live demo (Aiven Runtime) | Added once the Aiven Runtime deployment is live (see [Deploy on Aiven Runtime](#-deploy-on-aiven-runtime)) |
-| 🖼️ Pitch slide | [docs/images/pitch_slide.png](docs/images/pitch_slide.png) |
+| 🚀 Live app (Aiven Runtime) | Deployed from this repo (see [Deploy on Aiven Runtime](#-deploy-on-aiven-runtime)) |
+| 🖼️ Pitch deck | [PowerPoint](docs/FDIR_Copilot_Pitch.pptx) · [PDF](docs/FDIR_Copilot_Pitch.pdf) · [one-slide PNG](docs/images/pitch_slide.png) |
 | 📊 Evidence / benchmark | [docs/images/evidence.png](docs/images/evidence.png) · [`fdir/benchmark.py`](fdir/benchmark.py) |
 | 📝 Submission texts | [SUBMISSION.md](SUBMISSION.md) |
-| 🧑‍🚀 Author | [Paras Adlakha](https://github.com/ParasAdlakha) |
+| 🏆 Hackathon | [Accel AI Innovate Paris: Future Founders](#-hackathon-context) · 22 October 2026 |
+| 🧑‍🚀 Authors | [Paras Adlakha](https://github.com/ParasAdlakha) · [Harshita Adlakha](https://github.com/HarshitaAdlakha) |
 
 ---
 
@@ -47,13 +50,22 @@ FDIR = **F**ault **D**etection, **I**solation & **R**ecovery
 11. [Repository structure](#-repository-structure)
 12. [Go-to-market and roadmap](#-go-to-market-and-roadmap)
 13. [Limitations](#-limitations)
-14. [About the author](#-about-the-author)
+14. [Authors](#-authors)
 
 ---
 
 ## 🏆 Hackathon context
 
-Paras Adlakha designed and built FDIR Copilot as a submission to an **AI agents hackathon sponsored by [Aiven](https://aiven.io)**.
+Paras Adlakha and Harshita Adlakha designed and built FDIR Copilot in one day at **Accel AI Innovate Paris: Future Founders**, a hackathon hosted by [Accel](https://www.accel.com) for Europe's AI builders.
+
+| | |
+|---|---|
+| **Event** | Accel AI Innovate Paris · *Future Founders* (one-day hackathon) |
+| **Date and venue** | Thursday 22 October 2026 · Metafore Boétie St Augustin, Paris |
+| **Host** | [Accel](https://www.accel.com) |
+| **Partners** | [Aiven](https://aiven.io) (challenge sponsor) · [Lovable](https://lovable.dev) · Hackathon Hub · Iterate |
+| **Agenda** | 08:00 registration · 09:00 build starts · 15:00 submissions · 16:00 top-8 pitching · 17:00 winners announced |
+| **Team** | Paras Adlakha · Harshita Adlakha |
 
 ### The challenge brief
 > Build a working product where one or more agents depend on data to deliver value for a specific user. That could mean querying large datasets, reacting to event streams, keeping long-term memory, combining many sources or improving over time from past runs. You choose the customer and the problem.
@@ -79,7 +91,7 @@ Paras Adlakha designed and built FDIR Copilot as a submission to an **AI agents 
 | **Agent capability** (multi-step reasoning, autonomy) | [How the agent works](#-how-the-agent-works): a 5-step loop (detect → isolate → recall → fuse → recommend) with a full trace |
 | **Data at the core** (freshness, scale, grounding, memory) | [The data layer in action](#-the-data-layer-in-action): time-series telemetry, ephemeris grounding, causal model, persistent incident memory |
 | **Evidence it works** (accuracy, latency, comparison) | [Evidence it works](#-evidence-it-works): 300-pass benchmark against a naive limit-check baseline, plus ablations |
-| **Execution & pitch** | Polished web app, [pitch slide](docs/images/pitch_slide.png), reproducible benchmark, a clear route to first users |
+| **Execution & pitch** | Polished web app, [public replay](https://parasadlakha.github.io/fdir-copilot/), [pitch deck](docs/FDIR_Copilot_Pitch.pptx), reproducible benchmark, a clear route to first users |
 
 ### Submission checklist
 
@@ -87,12 +99,12 @@ Paras Adlakha designed and built FDIR Copilot as a submission to an **AI agents 
 |---|---|
 | Project name | FDIR Copilot |
 | One-line pitch | See [SUBMISSION.md](SUBMISSION.md) |
-| 3-minute demo (MP4) | Recorded from the live app; script in [SUBMISSION.md](SUBMISSION.md) |
+| 3-minute demo (MP4) | [demo.mp4](demo.mp4); script in [SUBMISSION.md](SUBMISSION.md) |
 | The data layer in action | [Section below](#-the-data-layer-in-action) |
 | Evidence it works | [docs/images/evidence.png](docs/images/evidence.png) |
-| One pitch slide | [docs/images/pitch_slide.png](docs/images/pitch_slide.png) |
+| One pitch slide | Slide 1 of the [deck](docs/FDIR_Copilot_Pitch.pptx) · [PNG](docs/images/pitch_slide.png) |
 | GitHub repo *(optional)* | This repository |
-| Demo link *(optional)* | Aiven Runtime URL |
+| Demo link *(optional)* | [Public replay](https://parasadlakha.github.io/fdir-copilot/) · Aiven Runtime URL |
 
 ---
 
@@ -123,6 +135,12 @@ FDIR Copilot is a web app plus an agent that:
 ![Full app view](docs/images/app.png)
 
 <sub>Left: the 13 telemetry channels of one pass (grey bands = eclipse, dashed red = hard limits, amber = flagged by the agent). Right: the agent's step-by-step reasoning, a side-by-side verdict against the classic console, and live evidence.</sub>
+
+### ▶️ Public replay (no laptop needed)
+
+[**parasadlakha.github.io/fdir-copilot**](https://parasadlakha.github.io/fdir-copilot/) replays a recorded agent run step by step: downlink → detect → isolate → recall → fuse → recommend → close incident. It is a static GitHub Pages site ([`docs/index.html`](docs/index.html)) driven by the run's real output ([`docs/replay.json`](docs/replay.json)). In this run the classic console raises **no alarm**, while the agent names the solar-array degradation with 100% confidence.
+
+![Replay](docs/images/replay.png)
 
 ---
 
@@ -363,10 +381,15 @@ fdir-copilot/
 │   ├── db.py           # Data layer: Aiven PostgreSQL (DATABASE_URL) or SQLite fallback
 │   ├── benchmark.py    # Online benchmark: baseline vs agent ablations
 │   └── index.html      # Web console
-├── docs/
-│   ├── images/         # Screenshots, evidence chart, pitch slide
-│   ├── evidence.html   # Source of the evidence chart
+├── docs/                       # Also served as the GitHub Pages site
+│   ├── index.html              # Public step-by-step replay of an agent run
+│   ├── replay.json             # Recorded output of that run
+│   ├── FDIR_Copilot_Pitch.pptx # Pitch deck (7 slides, editable charts)
+│   ├── FDIR_Copilot_Pitch.pdf
+│   ├── images/                 # Screenshots, evidence chart, pitch slide
+│   ├── evidence.html           # Source of the evidence chart
 │   └── pitch_slide.html
+├── demo.mp4                    # 3-minute demo video
 ├── bench_result.json   # Benchmark output (300 passes)
 ├── Dockerfile          # Container for Aiven Runtime
 ├── requirements.txt
@@ -399,14 +422,17 @@ fdir-copilot/
 
 ---
 
-## 👤 About the author
+## 👥 Authors
 
-**[Paras Adlakha](https://github.com/ParasAdlakha)**, with a background in aerospace, systems engineering and system dynamics. FDIR Copilot applies the core ideas of that field (FDIR, FMEA, causal propagation with transport delays) to agentic AI. The point is to give small ops teams the reasoning that used to need a full flight-controller bench.
+- **[Paras Adlakha](https://github.com/ParasAdlakha)**: background in aerospace, systems engineering and system dynamics.
+- **[Harshita Adlakha](https://github.com/HarshitaAdlakha)**
+
+FDIR Copilot applies the core ideas of spacecraft systems engineering (FDIR, FMEA, causal propagation with transport delays) to agentic AI. The point is to give small ops teams the reasoning that used to need a full flight-controller bench.
 
 ---
 
 <div align="center">
 
-Built by **Paras Adlakha** · Data layer on **Aiven for PostgreSQL** · Deployed on **Aiven Runtime**
+Built by **Paras Adlakha** and **Harshita Adlakha** at **Accel AI Innovate Paris** · Data layer on **Aiven for PostgreSQL** · Deployed on **Aiven Runtime**
 
 </div>
